@@ -1,46 +1,37 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from .models import *
-from .serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .models import Manufacturer
+from .serializers import ManufacturerSerializer
 from rest_framework import status
 
 # Create your views here.
-@api_view(['GET', 'POST'])
-def drink_list(request):
-
+@api_view(['GET'])
+def GetAllManufacturers(request):
     if request.method == 'GET':
-        drink = Drink.objects.all()
-        serializer = DrinkSerializer(drink, many=True)
+        manufacturers = Manufacturer.objects.all()
+        serializer = ManufacturerSerializer(manufacturers, many=True)
         return Response(serializer.data)
     
+@api_view(['POST'])
+def PostManufacturers(request):
     if request.method == 'POST':
-        serializer = DrinkSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = ManufacturerSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+        return Response({'message': 'Manufacturer Added Successfully'}, status=status.HTTP_201_CREATED)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def drink_detail(request, id):
-
+@api_view(['DELETE'])
+def DeleteManufacturer(request, id):
     try:
-        drink = Drink.objects.get(pk=id)
-    except Drink.DoesNotExist:
+        manufacturer = Manufacturer.objects.get(pk=id)
+    except Manufacturer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = DrinkSerializer(drink)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = DrinkSerializer(drink, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
-        drink.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    if request.method == 'DELETE':
+        manufacturer.delete()
+        return Response({'message': 'Manufacturer Deleted Successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 

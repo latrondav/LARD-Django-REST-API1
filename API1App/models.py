@@ -1,9 +1,9 @@
 from django.db import models
 
-# Create your models here.
-class Drink(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(max_length=500)
+class Manufacturer(models.Model):
+    name = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    year_founded = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name
